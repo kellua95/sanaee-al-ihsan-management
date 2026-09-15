@@ -66,11 +66,17 @@ namespace GreenCrescent.Infrastructure.Identity
                         "لم يتم تحديد كلمة مرور أول مدير.");
                 }
 
+                var adminFullName =
+                    configuration["InitialAdmin:FullName"]
+                    ?? "مدير النظام";
+
                 admin = new ApplicationUser
                 {
-                    UserName = adminEmail,
-                    Email = adminEmail,
-                    EmailConfirmed = true
+                    UserName = adminEmail.Trim(),
+                    Email = adminEmail.Trim(),
+                    FullName = adminFullName.Trim(),
+                    EmailConfirmed = true,
+                    IsActive = true
                 };
 
                 var createResult =
@@ -81,12 +87,12 @@ namespace GreenCrescent.Infrastructure.Identity
                 if (!createResult.Succeeded)
                 {
                     var errors = string.Join(
-                        ", ",
+                        "، ",
                         createResult.Errors.Select(error =>
                             error.Description));
 
                     throw new InvalidOperationException(
-                        $"تعذر إنشاء حساب المدير: {errors}");
+                        $"تعذر إنشاء أول مدير: {errors}");
                 }
             }
             else if (!admin.EmailConfirmed)

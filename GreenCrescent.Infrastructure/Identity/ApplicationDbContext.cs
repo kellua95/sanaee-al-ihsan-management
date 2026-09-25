@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 
 namespace GreenCrescent.Infrastructure.Identity
 {
@@ -25,10 +23,20 @@ namespace GreenCrescent.Infrastructure.Identity
         public DbSet<PaymentAllocation> PaymentAllocations =>
             Set<PaymentAllocation>();
 
+        public DbSet<SponsorCreditTransaction> SponsorCreditTransactions =>
+                Set<SponsorCreditTransaction>();
+
         public DbSet<SponsorshipChange> SponsorshipChanges =>
             Set<SponsorshipChange>();
 
         public DbSet<ResponsibleSheikh> ResponsibleSheikhs => Set<ResponsibleSheikh>();
+
+        public DbSet<OrphanApplication> OrphanApplications =>
+            Set<OrphanApplication>();
+
+        public DbSet<OrphanApplicationFamilyMember>
+            OrphanApplicationFamilyMembers =>
+                Set<OrphanApplicationFamilyMember>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

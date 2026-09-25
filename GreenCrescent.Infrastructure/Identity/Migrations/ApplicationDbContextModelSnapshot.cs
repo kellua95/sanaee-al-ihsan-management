@@ -30,6 +30,10 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("ArchiveReason")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -43,8 +47,37 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
                     b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("date");
 
+                    b.Property<int?>("FamilyMembersCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly?>("FatherDeathDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FatherDeathReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<int>("FileNumber")
                         .HasColumnType("integer");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GuardianName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("GuardianNationalNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("GuardianPhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("GuardianRelationship")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsArchived")
                         .ValueGeneratedOnAdd()
@@ -56,6 +89,14 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("NationalNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Nationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -64,8 +105,19 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
+                    b.Property<string>("PhotoContentType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("PhotoData")
+                        .HasColumnType("bytea");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("TotalMonthlyIncome")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -78,6 +130,11 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
                     b.HasIndex("IsArchived");
 
                     b.HasIndex("Name");
+
+                    b.HasIndex("NationalNumber")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Beneficiaries_NationalNumber_Unique")
+                        .HasFilter("\"NationalNumber\" IS NOT NULL");
 
                     b.ToTable("Beneficiaries", (string)null);
                 });
@@ -149,11 +206,321 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
 
                     b.HasIndex("SponsorId");
 
-                    b.HasIndex("BookNumber", "ReceiptNumber");
+                    b.HasIndex("BookNumber", "ReceiptNumber")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FinancialEntries_Book_Receipt_Unique")
+                        .HasFilter("\"BookNumber\" IS NOT NULL AND \"ReceiptNumber\" IS NOT NULL");
 
                     b.ToTable("FinancialEntries", null, t =>
                         {
                             t.HasCheckConstraint("CK_FinancialEntry_Amount", "\"Amount\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("GreenCrescent.Core.Entities.OrphanApplication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AcademicAchievement")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("AlternativeDirection")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ApplicantName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ApplicantPhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("ApplicantRelationship")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int?>("BeneficiaryId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("DecisionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("EducationStage")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("FamilyMembersCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("FatherDeathDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("FatherDeathReason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly?>("GuardianDateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("GuardianGender")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GuardianName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("GuardianNationalNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("GuardianNationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("GuardianPhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("GuardianRelationship")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("HasHealthInsurance")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasIllness")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("HealthInsuranceProvider")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("IllnessDescription")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsAutomaticallyRejected")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsMotherAlive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly?>("MotherDateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("MotherName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("MotherNationalNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("MotherNationality")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("MotherPhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Nationality")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("OrphanFamilyName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OrphanFatherName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OrphanFirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OrphanGrandfatherName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OrphanNationalNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("PhotoContentType")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<byte[]>("PhotoData")
+                        .HasColumnType("bytea");
+
+                    b.Property<DateTime?>("ReviewedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("SchoolDropoutReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("SponsoredFamilyMembersCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("SubmittedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("TotalMonthlyExpenses")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<decimal>("TotalMonthlyIncome")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<string>("TrackingCode")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BeneficiaryId")
+                        .IsUnique();
+
+                    b.HasIndex("OrphanNationalNumber")
+                        .IsUnique()
+                        .HasDatabaseName("IX_OrphanApplications_OrphanNationalNumber_Unique");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("SubmittedAtUtc");
+
+                    b.HasIndex("TrackingCode")
+                        .IsUnique();
+
+                    b.ToTable("OrphanApplications", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_OrphanApplication_FamilyMembersCount", "\"FamilyMembersCount\" >= 1");
+
+                            t.HasCheckConstraint("CK_OrphanApplication_SponsoredFamilyMembersCount", "\"SponsoredFamilyMembersCount\" >= 0");
+
+                            t.HasCheckConstraint("CK_OrphanApplication_SponsoredNotGreaterThanFamily", "\"SponsoredFamilyMembersCount\" <= \"FamilyMembersCount\"");
+
+                            t.HasCheckConstraint("CK_OrphanApplication_TotalMonthlyExpenses", "\"TotalMonthlyExpenses\" >= 0");
+
+                            t.HasCheckConstraint("CK_OrphanApplication_TotalMonthlyIncome", "\"TotalMonthlyIncome\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("GreenCrescent.Core.Entities.OrphanApplicationFamilyMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EducationalStatus")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("Gender")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("HealthStatus")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<decimal>("MonthlyIncome")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Occupation")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("OrphanApplicationId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Relationship")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SocialStatus")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrphanApplicationId");
+
+                    b.ToTable("OrphanApplicationFamilyMembers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_OrphanApplicationFamilyMember_MonthlyIncome", "\"MonthlyIncome\" >= 0");
                         });
                 });
 
@@ -254,6 +621,12 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal>("CreditBalance")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)")
+                        .HasDefaultValue(0m);
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -277,7 +650,61 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
 
                     b.HasIndex("PhoneNumber");
 
-                    b.ToTable("Sponsors", (string)null);
+                    b.ToTable("Sponsors", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Sponsor_CreditBalance", "\"CreditBalance\" >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("GreenCrescent.Core.Entities.SponsorCreditTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("FinancialEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("SponsorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FinancialEntryId");
+
+                    b.HasIndex("SponsorId");
+
+                    b.HasIndex("SponsorId", "CreatedAtUtc");
+
+                    b.ToTable("SponsorCreditTransactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_SponsorCreditTransaction_Amount", "\"Amount\" <> 0");
+
+                            t.HasCheckConstraint("CK_SponsorCreditTransaction_BalanceAfter", "\"BalanceAfter\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("GreenCrescent.Core.Entities.Sponsorship", b =>
@@ -663,6 +1090,27 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
                     b.Navigation("Sponsor");
                 });
 
+            modelBuilder.Entity("GreenCrescent.Core.Entities.OrphanApplication", b =>
+                {
+                    b.HasOne("GreenCrescent.Core.Entities.Beneficiary", "Beneficiary")
+                        .WithOne()
+                        .HasForeignKey("GreenCrescent.Core.Entities.OrphanApplication", "BeneficiaryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Beneficiary");
+                });
+
+            modelBuilder.Entity("GreenCrescent.Core.Entities.OrphanApplicationFamilyMember", b =>
+                {
+                    b.HasOne("GreenCrescent.Core.Entities.OrphanApplication", "OrphanApplication")
+                        .WithMany("FamilyMembers")
+                        .HasForeignKey("OrphanApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrphanApplication");
+                });
+
             modelBuilder.Entity("GreenCrescent.Core.Entities.PaymentAllocation", b =>
                 {
                     b.HasOne("GreenCrescent.Core.Entities.FinancialEntry", "FinancialEntry")
@@ -680,6 +1128,24 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
                     b.Navigation("FinancialEntry");
 
                     b.Navigation("Sponsorship");
+                });
+
+            modelBuilder.Entity("GreenCrescent.Core.Entities.SponsorCreditTransaction", b =>
+                {
+                    b.HasOne("GreenCrescent.Core.Entities.FinancialEntry", "FinancialEntry")
+                        .WithMany("CreditTransactions")
+                        .HasForeignKey("FinancialEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("GreenCrescent.Core.Entities.Sponsor", "Sponsor")
+                        .WithMany("CreditTransactions")
+                        .HasForeignKey("SponsorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FinancialEntry");
+
+                    b.Navigation("Sponsor");
                 });
 
             modelBuilder.Entity("GreenCrescent.Core.Entities.Sponsorship", b =>
@@ -818,6 +1284,13 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
             modelBuilder.Entity("GreenCrescent.Core.Entities.FinancialEntry", b =>
                 {
                     b.Navigation("Allocations");
+
+                    b.Navigation("CreditTransactions");
+                });
+
+            modelBuilder.Entity("GreenCrescent.Core.Entities.OrphanApplication", b =>
+                {
+                    b.Navigation("FamilyMembers");
                 });
 
             modelBuilder.Entity("GreenCrescent.Core.Entities.ResponsibleSheikh", b =>
@@ -827,6 +1300,8 @@ namespace GreenCrescent.Infrastructure.Identity.Migrations
 
             modelBuilder.Entity("GreenCrescent.Core.Entities.Sponsor", b =>
                 {
+                    b.Navigation("CreditTransactions");
+
                     b.Navigation("Sponsorships");
                 });
 #pragma warning restore 612, 618

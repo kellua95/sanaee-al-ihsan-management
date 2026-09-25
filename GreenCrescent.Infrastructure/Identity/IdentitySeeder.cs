@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -23,7 +23,7 @@ namespace GreenCrescent.Infrastructure.Identity
                 scope.ServiceProvider.GetRequiredService<
                     UserManager<ApplicationUser>>();
 
-            foreach (var roleName in AppRoles.All)fz
+            foreach (var roleName in AppRoles.All)
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {

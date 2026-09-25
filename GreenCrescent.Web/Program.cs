@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
+using GreenCrescent.Application.Features.OrphanApplications;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,10 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddScoped<
+    IOrphanApplicationService,
+    OrphanApplicationService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -126,28 +131,59 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-// Configure the HTTP request pipeline.
+// منع تخزين صفحات HTML التي قد تعرض بيانات حساسة.
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        var contentType = context.Response.ContentType;
+
+        if (contentType?.StartsWith(
+                "text/html",
+                StringComparison.OrdinalIgnoreCase) == true)
+        {
+            context.Response.Headers["Cache-Control"] =
+                "no-store, no-cache, max-age=0, must-revalidate";
+
+            context.Response.Headers["Pragma"] = "no-cache";
+            context.Response.Headers["Expires"] = "0";
+        }
+
+        return Task.CompletedTask;
+    });
+
+    await next(context);
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
 }
 else
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler(
+        "/Error",
+        createScopeForErrors: true);
+
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+
+app.UseStatusCodePagesWithReExecute(
+    "/not-found",
+    createScopeForStatusCodePages: true);
+
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapHealthChecks("/health");
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
 await IdentitySeeder.SeedAsync(

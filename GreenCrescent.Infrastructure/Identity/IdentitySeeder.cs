@@ -23,7 +23,7 @@ namespace GreenCrescent.Infrastructure.Identity
                 scope.ServiceProvider.GetRequiredService<
                     UserManager<ApplicationUser>>();
 
-            foreach (var roleName in AppRoles.All)
+            foreach (var roleName in AppRoles.All)fz
             {
                 if (!await roleManager.RoleExistsAsync(roleName))
                 {

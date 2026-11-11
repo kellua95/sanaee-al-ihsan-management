@@ -1,6 +1,7 @@
 using GreenCrescent.Application.Common;
 using GreenCrescent.Application.Features.Beneficiaries;
 using GreenCrescent.Application.Features.FinancialEntries;
+using GreenCrescent.Application.Features.OrphanApplications;
 using GreenCrescent.Application.Features.Reports;
 using GreenCrescent.Application.Features.ResponsibleSheikhs;
 using GreenCrescent.Application.Features.Sponsors;
@@ -12,11 +13,11 @@ using GreenCrescent.Web.Components;
 using GreenCrescent.Web.Components.Account;
 using GreenCrescent.Web.Services;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
-using GreenCrescent.Application.Features.OrphanApplications;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -117,6 +118,20 @@ builder.Services.AddScoped<
     IReportService,
     ReportService>();
 
+builder.Services.AddScoped<
+    IOrphanApplicationEmailService,
+    ResendOrphanApplicationEmailService>();
+
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(options =>
+{
+    options.ApiToken = builder.Configuration["Resend:ApiKey"]
+        ?? throw new InvalidOperationException("Resend API key is missing.");
+});
+
+builder.Services.AddTransient<IResend, ResendClient>();
+
 builder.Services.AddSingleton<
     IExcelExportService,
     ExcelExportService>();
@@ -126,6 +141,10 @@ builder.Services.AddScoped<
     ResponsibleSheikhService>();
 
 builder.Services.AddHealthChecks();
+
+builder.Services.AddScoped<
+    Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+        .ProtectedSessionStorage>();
 
 var app = builder.Build();
 

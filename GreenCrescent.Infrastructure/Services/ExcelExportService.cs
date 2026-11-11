@@ -54,7 +54,7 @@ public sealed class ExcelExportService : IExcelExportService
                 item.StartDate.ToDateTime(TimeOnly.MinValue);
             sheet.Cell(rowNumber, 9).Value =
                 item.EndDate.ToDateTime(TimeOnly.MinValue);
-            
+
 
             rowNumber++;
         }
@@ -198,16 +198,51 @@ public sealed class ExcelExportService : IExcelExportService
             rowNumber++;
         }
 
-        var totalRow = rowNumber + 1;
+        var confirmedRows = rows
+    .Where(item =>
+        item.Status == FinancialEntryStatus.Confirmed)
+    .ToList();
 
-        sheet.Cell(totalRow, 3).Value = "الإجمالي";
-        sheet.Cell(totalRow, 4).Value = rows
-            .Where(item =>
-                item.Status == FinancialEntryStatus.Confirmed)
-            .Sum(item => item.Amount);
+        var summaryRow = rowNumber + 1;
+
+        sheet.Cell(summaryRow, 3).Value =
+            "مجاميع الحركات المؤكدة";
+
+        sheet.Range(summaryRow, 3, summaryRow, 4)
+            .Style.Font.Bold = true;
+
+        summaryRow++;
+
+
+        foreach (var method in Enum.GetValues<PaymentMethod>())
+        {
+            var methodTotal = confirmedRows
+                .Where(item => item.PaymentMethod == method)
+                .Sum(item => item.Amount);
+
+            sheet.Cell(summaryRow, 3).Value =
+                GetPaymentMethodName(method);
+
+            sheet.Cell(summaryRow, 4).Value =
+                methodTotal;
+
+            summaryRow++;
+        }
+
+
+        var totalRow = summaryRow;
+
+        sheet.Cell(totalRow, 3).Value = "المجموع الكلي";
+
+        sheet.Cell(totalRow, 4).Value =
+            confirmedRows.Sum(item => item.Amount);
 
         sheet.Range(totalRow, 3, totalRow, 4)
             .Style.Font.Bold = true;
+
+        sheet.Range(totalRow, 3, totalRow, 4)
+            .Style.Fill.BackgroundColor =
+                XLColor.FromHtml("#E8F5ED");
 
         sheet.Column(4).Style.NumberFormat.Format = "#,##0.000";
         sheet.Column(8).Style.DateFormat.Format = "yyyy/MM/dd";
@@ -492,7 +527,7 @@ public sealed class ExcelExportService : IExcelExportService
                 columnCount);
 
         branchRange.Merge();
-        branchRange.Value = "الفرع: ................";
+        branchRange.Value = "الفرع: .......";
 
         var numberRange =
             sheet.Range(

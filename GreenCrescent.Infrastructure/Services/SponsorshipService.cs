@@ -80,7 +80,7 @@ public sealed class SponsorshipService(
                 item.ResponsibleSheikh != null
                     ? item.ResponsibleSheikh.Name
                     : null,
-                
+
                 item.MonthlyAmount,
                 item.StartDate,
                 item.EndDate,
@@ -258,6 +258,33 @@ public sealed class SponsorshipService(
             cancellationToken);
 
         return sponsorship.Id;
+    }
+
+    public async Task UpdateEndDateAsync(
+    int sponsorshipId,
+    DateOnly newEndDate,
+    CancellationToken cancellationToken = default)
+    {
+        var userId = await currentUserService.GetUserIdAsync();
+        var user = await dbContext.Users.FindAsync([userId], cancellationToken);
+
+        var isAdmin = await dbContext.UserRoles
+            .Join(dbContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
+            .AnyAsync(x => x.UserId == userId && x.Name == "Admin", cancellationToken);
+
+        if (!isAdmin)
+        {
+            throw new InvalidOperationException("عذراً، هذه الصلاحية مخصصة للمشرفين (Admin) فقط.");
+        }
+
+        var sponsorship = await dbContext.Sponsorships
+            .FirstOrDefaultAsync(item => item.Id == sponsorshipId, cancellationToken)
+            ?? throw new InvalidOperationException("الكفالة المطلوبة غير موجودة.");
+
+        sponsorship.EndDate = newEndDate;
+        sponsorship.UpdatedAtUtc = DateTime.UtcNow;
+
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task StopAsync(
